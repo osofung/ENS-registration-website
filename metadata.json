@@ -1,0 +1,6 @@
+{
+  "name": "Engineering Society Membership Form",
+  "description": "HKU Engineering Society interactive multi-step membership registration wizard with privileges charter, student profiling, event selection, and deposit slip verification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
