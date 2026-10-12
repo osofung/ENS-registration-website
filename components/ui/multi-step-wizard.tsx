@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion, type Transition } from 'framer-motion';
+import PatternWaves from '@/components/ui/PatternWaves';
 import { 
   CheckCircle2, 
   ArrowRight, 
@@ -90,30 +91,35 @@ export default function OnboardingWizard({
     {
       id: "constitution",
       title: "Member constitution",
+      shortTitle: "Constitution",
       icon: Shield,
       description: "Privileges & responsibilities"
     },
     {
       id: "profile",
       title: "Student Profile",
+      shortTitle: "Profile",
       icon: GraduationCap,
       description: "Academic & personal details"
     },
     {
       id: "activities",
       title: "Events & Committees",
+      shortTitle: "Events",
       icon: Trophy,
       description: "Sports & organizing functions"
     },
     {
       id: "payment",
-      title: "Fee & Verification",
+      title: "Payment & Verification",
+      shortTitle: "Payment",
       icon: CreditCard,
       description: "Bank transfer & consent"
     },
     {
       id: "summary",
       title: "Completed",
+      shortTitle: "Completed",
       icon: CheckCircle,
       description: "Membership confirmed"
     }
@@ -300,14 +306,6 @@ export default function OnboardingWizard({
       const finalData = { ...formData, completed: true };
       setFormData(finalData);
       setSubmittedSuccess(true);
-      try {
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem(`hku_engsoc_reg_${finalData.uid}`, JSON.stringify(finalData));
-          localStorage.setItem('hku_engsoc_latest_reg', JSON.stringify(finalData));
-        }
-      } catch (err) {
-        console.warn("Storage warning:", err);
-      }
       if (onComplete) {
         onComplete(finalData);
       }
@@ -343,33 +341,67 @@ export default function OnboardingWizard({
   };
 
   return (
-    <div className={`w-full text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center font-sans ${className}`}>
-      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden transition-all">
+    <div className={`relative min-h-screen w-full bg-[#030712] text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 lg:p-8 font-sans overflow-x-hidden ${className}`}>
+      {/* Background PatternWaves Component */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <PatternWaves
+          preset="silk"
+          color="#6366f1"
+          backgroundColor="#020617"
+          fade="none"
+          interactive={true}
+          cursorSize={60}
+          cursorStrength={0.65}
+          speed={0.3}
+          opacity={0.85}
+        />
+      </div>
+
+      {/* Main Wizard Form Card */}
+      <div className="relative z-10 w-full max-w-4xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden transition-all my-auto">
         
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-900 text-white px-6 sm:px-10 pt-8 pb-6 relative overflow-hidden">
           <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
           <div className="relative z-10">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold tracking-wide uppercase">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                HKU Engineering Society
+            {/* Header row with Logo and Heading */}
+            <div className="flex flex-col gap-2.5 mb-2">
+              <div className="flex items-center gap-3.5 sm:gap-4.5">
+                {/* Logo rounded square */}
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white p-2 shadow-lg border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
+                  <img 
+                    src="/ens-logo.png" 
+                    alt="Engineering Society 1913 Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Heading to the right of logo */}
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                    <span className="block sm:inline">Engineering Society </span>
+                    <span className="block sm:inline">Membership Form</span>
+                  </h1>
+                  {/* Caption beside heading on wider screens */}
+                  <p className="hidden sm:block text-blue-100/90 text-xs sm:text-sm mt-1 max-w-2xl leading-normal">
+                    Official membership registration and society affiliation for the Engineering Society, HKU.
+                  </p>
+                </div>
               </div>
-              <span className="text-xs font-medium text-blue-100 bg-white/10 px-3 py-1 rounded-full">
-                Step {currentStep + 1} of {steps.length}
-              </span>
+
+              {/* Caption at the bottom on mobile/narrow widths */}
+              <p className="block sm:hidden text-blue-100/90 text-xs mt-0.5 leading-normal">
+                Official membership registration and society affiliation for the Engineering Society, HKU.
+              </p>
             </div>
-            
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Engineering Society Membership Form
-            </h1>
-            <p className="text-blue-100/90 text-xs sm:text-sm mt-1 max-w-2xl">
-              Official membership registration and society affiliation for the Engineering Society, HKUSU.
-            </p>
           </div>
 
-          {/* Stepper Progress Bar */}
-          <div className="mt-6 pt-2">
+          {/* Stepper Progress Bar with Percentage Completed */}
+          <div className="mt-5 pt-1">
+            <div className="flex justify-between items-center mb-1.5 text-xs">
+              <span className="text-blue-200/90 font-medium">Application Progress</span>
+              <span className="text-emerald-300 font-bold">{Math.round(((currentStep + 1) / steps.length) * 100)}% completed</span>
+            </div>
             <div className="overflow-hidden h-2 mb-5 rounded-full bg-blue-950/40">
               <div 
                 style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -395,10 +427,11 @@ export default function OnboardingWizard({
                     >
                       {isPast ? <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" /> : <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-medium mt-1.5 truncate max-w-full ${
+                    <span className={`text-[10px] sm:text-xs font-medium mt-1.5 text-center leading-tight px-0.5 ${
                       isCurrent ? 'text-white font-bold' : isPast ? 'text-blue-100' : 'text-blue-300/70'
                     }`}>
-                      {step.title}
+                      <span className="hidden md:inline">{step.title}</span>
+                      <span className="inline md:hidden">{step.shortTitle || step.title}</span>
                     </span>
                   </div>
                 );
@@ -428,6 +461,9 @@ export default function OnboardingWizard({
                     <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                       Member constitution
                     </h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Please review the rights, privileges, and responsibilities granted to ordinary members.
+                    </p>
                   </div>
 
                   {/* Raw Text Constitution */}
@@ -467,7 +503,7 @@ export default function OnboardingWizard({
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6 sm:gap-y-7">
                     {/* English Full Name */}
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
@@ -506,7 +542,7 @@ export default function OnboardingWizard({
                     </div>
 
                     {/* Gender Dropdown (Alphabetical: Female, Male, Prefer not to say) */}
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                         Gender <span className="text-red-500">*</span>
                       </label>
@@ -533,7 +569,7 @@ export default function OnboardingWizard({
                     </div>
 
                     {/* UID */}
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                         UID (10-digits, 303XXXXXX) <span className="text-red-500">*</span>
                       </label>
@@ -548,13 +584,54 @@ export default function OnboardingWizard({
                           errors.uid ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 dark:border-slate-700'
                         }`}
                       />
-                      {errors.uid ? (
+                      {errors.uid && (
                         <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                           <AlertCircle className="w-3.5 h-3.5" /> {errors.uid}
                         </p>
-                      ) : (
-                        <p className="text-[11px] text-slate-400 mt-1">Must be 10 digits starting with 303</p>
                       )}
+                    </div>
+
+                    {/* HKU Email */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                        HKU Email (e.g. xxxxxxx@connect.hku.hk) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          name="hkuEmail"
+                          value={formData.hkuEmail}
+                          onChange={handleInputChange}
+                          placeholder="uid@connect.hku.hk"
+                          className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border bg-slate-50/50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 transition-colors ${
+                            errors.hkuEmail ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 dark:border-slate-700'
+                          }`}
+                        />
+                        <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      </div>
+                      {errors.hkuEmail && (
+                        <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" /> {errors.hkuEmail}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone Number */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="e.g. 9123 4567"
+                          className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 transition-colors"
+                        />
+                        <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      </div>
                     </div>
 
                     {/* Curriculum Dropdown (Alphabetical) */}
@@ -602,7 +679,7 @@ export default function OnboardingWizard({
                     </div>
 
                     {/* Year of Study Dropdown (Alphabetical / 1, 2, 3, 4, Other) */}
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                         Year of Study <span className="text-red-500">*</span>
                       </label>
@@ -641,46 +718,6 @@ export default function OnboardingWizard({
                       {errors.year && (
                         <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                           <AlertCircle className="w-3.5 h-3.5" /> {errors.year}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Phone Number */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 9123 4567"
-                        className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 transition-colors"
-                      />
-                    </div>
-
-                    {/* HKU Email */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                        HKU Email (e.g. xxxxxxx@connect.hku.hk) <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          name="hkuEmail"
-                          value={formData.hkuEmail}
-                          onChange={handleInputChange}
-                          placeholder="uid@connect.hku.hk"
-                          className={`w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border bg-slate-50/50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 transition-colors ${
-                            errors.hkuEmail ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 dark:border-slate-700'
-                          }`}
-                        />
-                        <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                      </div>
-                      {errors.hkuEmail && (
-                        <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" /> {errors.hkuEmail}
                         </p>
                       )}
                     </div>
